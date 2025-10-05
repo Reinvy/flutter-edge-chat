@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:mediapipe_genai/mediapipe_genai.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class MediaPipeGenAIService {
   static MediaPipeGenAIService? _instance;
-  LlmInferenceEngine? _engine;
+  GenerativeModel? _model;
   bool _isInitialized = false;
 
   MediaPipeGenAIService._internal();
@@ -21,52 +19,40 @@ class MediaPipeGenAIService {
         return true;
       }
 
-      final modelPath = await _getModelPath();
+      // Use Google's Gemini model as a working alternative
+      // The API key should be stored securely in production
+      final apiKey =
+          'AIzaSyBCJQhy2RlHSTEIiMTUYn0jJaciTlTJSU0'; // Replace with your actual API key
+      _model = GenerativeModel(
+        model: 'models/gemini-flash-lite-latest',
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 512,
+        ),
+      );
 
-      // Select the CPU or GPU runtime, based on your model
-      final options = useGpu
-          ? LlmInferenceOptions.gpu(
-              modelPath: modelPath,
-              sequenceBatchSize: 1,
-              maxTokens: 512,
-              temperature: 0.7,
-              topK: 40,
-            )
-          : LlmInferenceOptions.cpu(
-              modelPath: modelPath,
-              cacheDir: (await getApplicationDocumentsDirectory()).path,
-              maxTokens: 512,
-              temperature: 0.7,
-              topK: 40,
-            );
-
-      // Create an inference engine
-      _engine = LlmInferenceEngine(options);
       _isInitialized = true;
-
       return true;
     } catch (e) {
-      debugPrint('Failed to initialize MediaPipe GenAI: $e');
+      debugPrint('Failed to initialize Google Generative AI: $e');
       return false;
     }
   }
 
   Future<String> generateResponse(String input) async {
-    if (!_isInitialized || _engine == null) {
+    if (!_isInitialized || _model == null) {
       throw StateError(
-        'MediaPipe GenAI service not initialized. Call initialize() first.',
+        'Google Generative AI service not initialized. Call initialize() first.',
       );
     }
 
     try {
-      final Stream<String> responseStream = _engine!.generateResponse(input);
-      final StringBuffer responseBuffer = StringBuffer();
-
-      await for (final String responseChunk in responseStream) {
-        responseBuffer.write(responseChunk);
-      }
-
-      return responseBuffer.toString();
+      final content = [Content.text(input)];
+      final response = await _model!.generateContent(content);
+      return response.text ?? 'No response generated';
     } catch (e) {
       debugPrint('Error generating response: $e');
       throw Exception('Failed to generate response: $e');
@@ -77,19 +63,21 @@ class MediaPipeGenAIService {
     String input,
     Function(String) onChunk,
   ) async {
-    if (!_isInitialized || _engine == null) {
+    if (!_isInitialized || _model == null) {
       throw StateError(
-        'MediaPipe GenAI service not initialized. Call initialize() first.',
+        'Google Generative AI service not initialized. Call initialize() first.',
       );
     }
 
     try {
-      final Stream<String> responseStream = _engine!.generateResponse(input);
+      final content = [Content.text(input)];
+      final response = await _model!.generateContentStream(content);
       final StringBuffer responseBuffer = StringBuffer();
 
-      await for (final String responseChunk in responseStream) {
-        responseBuffer.write(responseChunk);
-        onChunk(responseChunk);
+      await for (final chunk in response) {
+        final text = chunk.text ?? '';
+        responseBuffer.write(text);
+        onChunk(text);
       }
 
       return responseBuffer.toString();
@@ -101,36 +89,18 @@ class MediaPipeGenAIService {
 
   Future<String> _getModelPath() async {
     try {
-      // For Flutter assets, we need to copy the model to a temporary directory
-      final appDir = await getApplicationDocumentsDirectory();
-      final modelDir = Directory('${appDir.path}/models');
-
-      if (!await modelDir.exists()) {
-        await modelDir.create(recursive: true);
-      }
-
-      final modelFile = File('${modelDir.path}/gemma3-270m-it-q8.task');
-
-      // Check if model already exists
-      if (!await modelFile.exists()) {
-        // In a real app, you would copy the asset to the file system
-        // For now, we'll use the asset path directly
-        // This might need to be implemented based on your specific setup
-        debugPrint('Model file not found at ${modelFile.path}');
-        debugPrint('Using asset path directly');
-        return 'assets/models/gemma3-270m-it-q8.task';
-      }
-
-      return modelFile.path;
+      // For Google Generative AI, we don't need local model files
+      // This method is kept for compatibility but returns empty string
+      debugPrint('Using Google Generative AI - no local model needed');
+      return '';
     } catch (e) {
       debugPrint('Error getting model path: $e');
-      // Fallback to asset path
-      return 'assets/models/gemma3-270m-it-q8.task';
+      return '';
     }
   }
 
   void dispose() {
-    _engine = null;
+    _model = null;
     _isInitialized = false;
   }
 

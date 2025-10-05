@@ -68,6 +68,6 @@ class MediaPipeHelper {
 
   /// Get model information
   static Future<String> getModelInfo() async {
-    return 'Model: gemma3-270m-it-q8.task\nStatus: ${isInitialized ? "Initialized" : "Not Initialized"}';
+    return 'Model: Google Gemini Pro\nStatus: ${isInitialized ? "Initialized" : "Not Initialized"}';
   }
 }

@@ -26,7 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _initializeMediaPipe() async {
     setState(() {
-      _mediaPipeStatus = 'Initializing MediaPipe...';
+      _mediaPipeStatus = 'Initializing AI Service...';
     });
 
     try {
@@ -35,8 +35,8 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _isMediaPipeInitialized = initialized;
           _mediaPipeStatus = initialized
-              ? 'MediaPipe Initialized'
-              : 'MediaPipe Failed to Initialize';
+              ? 'AI Service Initialized'
+              : 'AI Service Failed to Initialize';
         });
       }
     } catch (e) {
@@ -84,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
       onError: (error) {
         if (mounted) {
           setState(() {
-            _errorMessage = 'MediaPipe Error: $error';
+            _errorMessage = 'AI Service Error: $error';
             _isLoading = false;
           });
         }
@@ -103,15 +103,16 @@ class _ChatScreenState extends State<ChatScreen> {
           _isLoading = false;
         });
       }
+      return "Error";
     });
   }
 
-  void _handleError(String error) {
-    setState(() {
-      _errorMessage = error;
-      _isLoading = false;
-    });
-  }
+  // void _handleError(String error) {
+  //   setState(() {
+  //     _errorMessage = error;
+  //     _isLoading = false;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -125,7 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MediaPipe Chat'),
+        title: const Text('AI Chat'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -263,7 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: InputDecoration(
                       hintText: _isMediaPipeInitialized
                           ? 'Type your message...'
-                          : 'Initializing MediaPipe...',
+                          : 'Initializing AI Service...',
                       hintStyle: TextStyle(
                         color: _isMediaPipeInitialized
                             ? Colors.grey[500]
