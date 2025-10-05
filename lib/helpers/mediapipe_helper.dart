@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/mediapipe.dart';
+import '../services/mediapipe_local.dart';
 
 class MediaPipeHelper {
-  static final MediaPipeGenAIService _service = MediaPipeGenAIService.instance;
+  static final MediaPipeLocalGenAIService _service =
+      MediaPipeLocalGenAIService.instance;
 
   /// Initialize MediaPipe GenAI service
   static Future<bool> initialize({bool useGpu = false}) async {
