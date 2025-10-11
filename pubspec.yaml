@@ -30,9 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_generative_ai: ^0.4.3
   path_provider: ^2.1.1
-  tflite_flutter: ^0.11.0
+  flutter_gemma: ^0.11.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -62,8 +61,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/models/
+    # - assets/models/Qwen2.5-0.5B-Instruct_multi-prefill-seq_q8_ekv1280.tflite
     - assets/models/gemma3-270m-it-q8.task
-    - assets/models/Llama-3.2-1B-Instruct_seq128_q8_ekv1280.tflite
+    # - assets/models/Llama-3.2-1B-Instruct_seq128_q8_ekv1280.tflite
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
