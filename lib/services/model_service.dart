@@ -37,7 +37,7 @@ class ModelService {
         _model = await _gemma!.createModel(
           modelType: ModelType.gemmaIt,
           preferredBackend: PreferredBackend.cpu,
-          maxTokens: 2048,
+          maxTokens: 256,
         );
 
         // Create chat session
@@ -50,7 +50,6 @@ class ModelService {
       } catch (e) {
         lastError = 'Failed to load $modelPath: ${e.toString()}';
         print('Model loading error for $modelPath: $e');
-        // Continue to next model
         _model = null;
         _chat = null;
       }
